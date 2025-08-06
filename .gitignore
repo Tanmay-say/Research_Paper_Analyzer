@@ -1,0 +1,7 @@
+.venv/
+.env
+.DS_Store
+__pycache__/
+k8s/chatbot-secrets.yaml
+paper.pdf
+rag_chatbot_env/

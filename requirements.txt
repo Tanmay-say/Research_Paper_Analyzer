@@ -1,0 +1,10 @@
+beautifulsoup4
+langchain
+groq
+langchain-groq
+langchain-community
+python-dotenv
+pypdf
+Flask
+google-search-results
+chromadb

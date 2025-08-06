@@ -1,0 +1,24 @@
+# ================================================================
+# Research Paper RAG Chatbot - Environment Configuration
+# ================================================================
+# Create a .env file with this content and update the API keys
+
+# ----------------------------------------------------------------
+# Flask Application Settings
+# ----------------------------------------------------------------
+FLASK_SECRET_KEY=research-chatbot-secret-key-change-this-in-production
+ENVIRONMENT=development
+
+# ----------------------------------------------------------------
+# AI Model Configuration (Required)
+# ----------------------------------------------------------------
+# Groq API Key - Get FREE at: https://console.groq.com/
+# Used for: LLM inference and document embeddings
+GROQ_API_KEY=your_groq_api_key_here
+
+# ----------------------------------------------------------------
+# Optional Enhancements
+# ----------------------------------------------------------------
+# SerpAPI Key - Get at: https://serpapi.com/ (First 100 searches free)
+# Used for: Web search when documents don't contain sufficient information
+SERPAPI_API_KEY=your_serpapi_api_key_here
