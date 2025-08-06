@@ -131,10 +131,22 @@
 
         #input-container {
             display: flex;
-            gap: 12px;
+            flex-direction: column;
+            gap: 15px;
             padding: 24px 32px;
             background: white;
             border-top: 1px solid var(--border-color);
+        }
+
+        .input-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 12px;
             align-items: center;
         }
 
@@ -405,12 +417,20 @@
             </div>
         </div>
         <div id="input-container">
-            <input type="text" id="input" placeholder="Ask me about your research papers..." 
-                   aria-label="Type your question here" onkeypress="handleKeyPress(event)" />
-            <button id="send-button" onclick="sendMessage()">
-                <i class="fas fa-paper-plane"></i>
-                Send
-            </button>
+            <div class="input-controls">
+                <button id="debug-button" onclick="checkUploadedPDFs()" style="padding: 8px 12px; font-size: 12px;">
+                    <i class="fas fa-bug"></i>
+                    Check PDFs
+                </button>
+            </div>
+            <div class="input-group">
+                <input type="text" id="input" placeholder="Ask me about your research papers..." 
+                       aria-label="Type your question here" onkeypress="handleKeyPress(event)" />
+                <button id="send-button" onclick="sendMessage()">
+                    <i class="fas fa-paper-plane"></i>
+                    Send
+                </button>
+            </div>
         </div>
     </div>
 
@@ -538,9 +558,13 @@
                 const data = await response.json();
 
                 if (response.ok) {
-                    statusDiv.textContent = 'File upload successful! All valid files have been processed.';
+                    const processedCount = data.processed_files ? data.processed_files.length : 0;
+                    statusDiv.textContent = `✅ Upload successful! ${processedCount} file(s) processed and ready for analysis.`;
                     statusDiv.className = 'success';
                     fileInput.value = ''; // Clear file input after successful upload
+                    
+                    // Auto-check what PDFs are available after upload
+                    setTimeout(checkUploadedPDFs, 1000);
                 } else {
                     const errorMessage = data.errors
                         ? `Bulk upload failed for some files: ${data.errors.map(e => `${e.file}: ${e.error}`).join(', ')}`
@@ -551,6 +575,41 @@
             } catch (error) {
                 statusDiv.textContent = 'Bulk upload failed: Network error';
                 statusDiv.className = 'error';
+                console.error('Error:', error);
+            }
+        }
+
+        async function checkUploadedPDFs() {
+            try {
+                const response = await fetch('/debug', {
+                    method: 'GET',
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    let message = `📊 **PDF Status Report:**\n\n`;
+                    
+                    if (data.total_documents === 0) {
+                        message += `❌ **No PDFs uploaded yet**\nPlease upload PDF files to analyze them.`;
+                    } else {
+                        message += `✅ **${data.total_documents} PDF(s) uploaded:**\n\n`;
+                        
+                        for (const [filename, details] of Object.entries(data.document_details)) {
+                            message += `📄 **${filename}**\n`;
+                            message += `   • Chunks: ${details.chunk_count}\n`;
+                            message += `   • Preview: ${details.first_chunk_preview}\n\n`;
+                        }
+                        
+                        message += `You can now ask questions about these documents!`;
+                    }
+                    
+                    appendMessage(message, 'bot');
+                } else {
+                    appendMessage('Error checking PDF status', 'bot');
+                }
+            } catch (error) {
+                appendMessage('Error checking PDF status: Network error', 'bot');
                 console.error('Error:', error);
             }
         }
